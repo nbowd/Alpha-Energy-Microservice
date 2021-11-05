@@ -11,7 +11,7 @@ app.get('/api/rad', async (request, response) => {
     let a = request.query.a
     let z = request.query.z
     if (!z) {
-        return response.status(400).send({Error: "Missing required parameter: z (atomic number)"})
+        return response.status(400).send({Error: "Missing required parameter: z (Atomic number)"})
     }
     let alphaDecay = await findDecay(z,a)
     response.json(alphaDecay)
