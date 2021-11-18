@@ -1,11 +1,10 @@
-Alpha Energy Microserivce
-
 This is web scraping service I built for a teammate in a Software Engineering class at OSU. 
-Try it here: https://osu361rad.herokuapp.com/?z=96&a=246
-z - Atomic number, required
+
+<b>Try it here:</b> https://osu361rad.herokuapp.com/?z=96&a=246 \
+z - Atomic number, required \
 a - Mass number, optional
 
-Note: This is hosted on Heroku, it may take a few extra seconds to 'spin up' if it has been inactive for too long
+<i>Note: This is hosted on Heroku, it may take a few extra seconds to 'spin up' if it has been inactive for too long</i>
 
 The scraper is built using Node and Puppeteer, a JavaScript library that allows for browser automation and scraping. It also uses this website to find nuclide information: http://nucleardata.nuclear.lu.se/toi/nucSearch.asp 
 
