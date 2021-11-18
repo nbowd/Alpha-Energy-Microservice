@@ -1,10 +1,6 @@
 const puppeteer = require('puppeteer')
 
-const searchLinks = async (url) => {
-  const browser = await puppeteer.launch({
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-})
-  const page = await browser.newPage()
+const searchLinks = async (url, page) => {
   await page.goto(url)
   
   // Two list representing two columns for each row.
@@ -19,8 +15,6 @@ const searchLinks = async (url) => {
     }
   }
 
-  await browser.close()
-
   return links
 }
 
@@ -28,7 +22,6 @@ const parseDecay = async(url, page) => {
   await page.goto(url)
   // Try/Catch handles situations where there are no decay tables present because $eval selectors throw an error when no match is found.
   try{
-    const massNumber = await page.$eval('td center table:nth-last-of-type(1) tr th font sup', e => e.textContent)
     let alpha = await page.$$eval('td center table:nth-last-of-type(1) tr td', t => t.map(e => e.textContent.split(String.fromCharCode(160))))
 
     // Removes first and last element which are blank from scraping page breaks
@@ -38,14 +31,9 @@ const parseDecay = async(url, page) => {
     const ia = []
 
     // Pairs Energies and Intensities in sub-lists
-    // const pairedAlpha = []
     for (let i=0; i< alpha.length; i=i+2){
-      // for (let letter of alpha[i]){
-      //   console.log(letter.charCodeAt(0));
-      // }
       ea.push(alpha[i][0])
       ia.push(alpha[i+1][0])
-      // pairedAlpha.push([alpha[i], alpha[i+1]])
     }
 
     return {ea: ea.reverse(), ia: ia.reverse()}
@@ -57,21 +45,23 @@ const parseDecay = async(url, page) => {
 
 const findDecay = async (z=null, a=null) => {
   const baseUrl = 'http://nucleardata.nuclear.lu.se/toi/listnuc.asp?sql=&'
+  const payload = []
 
   // Adjusts URL based on passed parameters. 
   let url = null 
   if(!z) {return null}  // No parameters passed
   else if (!a){url = `${baseUrl}Z=${z}`}  // Only atomic number passed
   else {url = `${baseUrl}A1=${a}&A2=${a}&Z=${z}`}  // Mass number and atomic number passed
-
-  const links = await searchLinks(url)
-
+  
+  // For debugging: pass {headless:false} to launch() to display the automation
   const browser = await puppeteer.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox']
-})  // For debugging: pass {headless:false} to launch() to display the automation
+  })  
   const page = await browser.newPage()
-  const payload = []
+  
+  const links = await searchLinks(url, page)
 
+  // Parses alpha energy information from each page collected
   for (let link of links){
     let info = await parseDecay(link, page)
     if (info){ payload.push({ea: info.ea, ia: info.ia}) }
@@ -79,8 +69,7 @@ const findDecay = async (z=null, a=null) => {
   
   await browser.close()
 
-  console.log(payload);
   return payload
 }
-findDecay(95)
+
 module.exports = findDecay

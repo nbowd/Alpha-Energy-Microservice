@@ -7,7 +7,7 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-app.get('/api/rad', async (request, response) => {
+app.get('/', async (request, response) => {
     let a = request.query.a
     let z = request.query.z
     if (!z) {
